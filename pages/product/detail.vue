@@ -176,10 +176,36 @@ export default {
       this.loading = true;
       try {
         const res = await getProductDetail(this.productId);
-        this.product = res.data;
-        // 处理图片数组
-        if (typeof this.product.images === "string") {
-          this.product.images = JSON.parse(this.product.images);
+        this.product = res.data || {};
+        // 处理图片数组（兼容 JSON 数组字符串、逗号分隔字符串或纯数组）
+        let imgList = [];
+        if (typeof this.product.images === "string" && this.product.images.trim()) {
+          try {
+            const parsed = JSON.parse(this.product.images);
+            imgList = Array.isArray(parsed) ? parsed : [parsed];
+          } catch (e) {
+            imgList = this.product.images
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        } else if (Array.isArray(this.product.images)) {
+          imgList = this.product.images;
+        }
+
+        // 如果没有商品轮播图，降级使用封面图
+        if (imgList.length === 0 && this.product.coverImage) {
+          imgList = [this.product.coverImage];
+        }
+
+        this.product.images = imgList;
+
+        // 处理富文本详情中的图片展示与错误链接修复
+        if (typeof this.product.detail === "string" && this.product.detail) {
+          this.product.detail = this.product.detail
+            .replace(/\/dev-api\/(https?:\/\/)/g, "$1")
+            .replace(/\/dev-api\/http/g, "http")
+            .replace(/<img/gi, '<img style="max-width:100%;height:auto;display:block;margin:10rpx auto;"');
         }
       } catch (error) {
         console.error("加载商品详情失败:", error);
@@ -194,12 +220,16 @@ export default {
 
     // 图片加载失败降级处理
     onImageError(e, index) {
-      // 替换为默认占位图
-      this.$set(
-        this.product.images,
-        index,
-        "/static/images/default-product.png",
-      );
+      if (Array.isArray(this.product.images) && this.product.images[index]) {
+        const fallback =
+          this.product.coverImage &&
+          this.product.images[index] !== this.product.coverImage
+            ? this.product.coverImage
+            : "/static/images/default-product.png";
+        if (this.product.images[index] !== fallback) {
+          this.$set(this.product.images, index, fallback);
+        }
+      }
     },
 
     // 加入购物车
