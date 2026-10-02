@@ -50,8 +50,8 @@ export const useUserStore = defineStore('user', () => {
     const uuid = userInfo.uuid
     return new Promise((resolve, reject) => {
       login(username, password, code, uuid).then(res => {
-        setToken(res.token)
-        SET_TOKEN(res.token)
+        setToken(res.data.token)
+        SET_TOKEN(res.data.token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -63,23 +63,23 @@ export const useUserStore = defineStore('user', () => {
   const getInfoAction = () => {
     return new Promise((resolve, reject) => {
       getInfo().then(res => {
-        const user = res.user
+        const user = res.data.user
         let avatar = user.avatar || ""
         if (!isHttp(avatar)) {
           avatar = (isEmpty(avatar)) ? defAva : baseUrl + avatar
         }
         const userid = (isEmpty(user) || isEmpty(user.userId)) ? "" : user.userId
         const username = (isEmpty(user) || isEmpty(user.userName)) ? "" : user.userName
-        if (res.roles && res.roles.length > 0) {
-          SET_ROLES(res.roles)
-          SET_PERMISSIONS(res.permissions)
+        if (res.data.roles && res.data.roles.length > 0) {
+          SET_ROLES(res.data.roles)
+          SET_PERMISSIONS(res.data.permissions)
         } else {
           SET_ROLES(['ROLE_DEFAULT'])
         }
-		SET_ID(userid)
+        SET_ID(userid)
         SET_NAME(username)
         SET_AVATAR(avatar)
-        resolve(res)
+        resolve(res.data)
       }).catch(error => {
         reject(error)
       })

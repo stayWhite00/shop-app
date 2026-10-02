@@ -1,92 +1,194 @@
 {
-  "pages": [{
-    "path": "pages/login",
-    "style": {
-      "navigationBarTitleText": "登录"
+  "pages": [
+    {
+      "path": "pages/index",
+      "style": {
+        "navigationBarTitleText": "商城首页",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/category/index",
+      "style": {
+        "navigationBarTitleText": "分类"
+      }
+    },
+    {
+      "path": "pages/cart/index",
+      "style": {
+        "navigationBarTitleText": "购物车"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/product/detail",
+      "style": {
+        "navigationBarTitleText": "商品详情"
+      }
+    },
+    {
+      "path": "pages/product/search",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
+    },
+    {
+      "path": "pages/product/list",
+      "style": {
+        "navigationBarTitleText": "商品列表"
+      }
+    },
+    {
+      "path": "pages/order/confirm",
+      "style": {
+        "navigationBarTitleText": "确认订单"
+      }
+    },
+    {
+      "path": "pages/order/list",
+      "style": {
+        "navigationBarTitleText": "我的订单"
+      }
+    },
+    {
+      "path": "pages/order/detail",
+      "style": {
+        "navigationBarTitleText": "订单详情"
+      }
+    },
+    {
+      "path": "pages/address/list",
+      "style": {
+        "navigationBarTitleText": "收货地址"
+      }
+    },
+    {
+      "path": "pages/address/edit",
+      "style": {
+        "navigationBarTitleText": "编辑地址"
+      }
+    },
+    {
+      "path": "pages/afterSale/apply",
+      "style": {
+        "navigationBarTitleText": "申请售后"
+      }
+    },
+    {
+      "path": "pages/afterSale/list",
+      "style": {
+        "navigationBarTitleText": "售后列表"
+      }
+    },
+    {
+      "path": "pages/afterSale/detail",
+      "style": {
+        "navigationBarTitleText": "售后详情"
+      }
+    },
+    {
+      "path": "pages/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/mine/avatar/index",
+      "style": {
+        "navigationBarTitleText": "修改头像"
+      }
+    },
+    {
+      "path": "pages/mine/info/index",
+      "style": {
+        "navigationBarTitleText": "个人信息"
+      }
+    },
+    {
+      "path": "pages/mine/info/edit",
+      "style": {
+        "navigationBarTitleText": "编辑资料"
+      }
+    },
+    {
+      "path": "pages/mine/setting/index",
+      "style": {
+        "navigationBarTitleText": "应用设置"
+      }
+    },
+    {
+      "path": "pages/common/webview/index",
+      "style": {
+        "navigationBarTitleText": "浏览网页"
+      }
+    },
+    {
+      "path": "pages/store/index",
+      "style": {
+        "navigationBarTitleText": "门店地图"
+      }
+    },
+    {
+      "path": "pages/member/index",
+      "style": {
+        "navigationBarTitleText": "会员中心"
+      }
+    },
+    {
+      "path": "pages/coupon/index",
+      "style": {
+        "navigationBarTitleText": "优惠券"
+      }
+    },
+    {
+      "path": "pages/notice/index",
+      "style": {
+        "navigationBarTitleText": "公告通知"
+      }
+    },
+    {
+      "path": "pages/notice/detail",
+      "style": {
+        "navigationBarTitleText": "公告详情"
+      }
+    },
+    {
+      "path": "pages/review/submit",
+      "style": {
+        "navigationBarTitleText": "评价商品"
+      }
     }
-  }, {
-    "path": "pages/register",
-    "style": {
-      "navigationBarTitleText": "注册"
-    }
-  }, {
-    "path": "pages/index",
-    "style": {
-      "navigationBarTitleText": "若依移动端框架",
-      "navigationStyle": "custom"
-    }
-  }, {
-    "path": "pages/work/index",
-    "style": {
-      "navigationBarTitleText": "工作台"
-    }
-  }, {
-    "path": "pages/mine/index",
-    "style": {
-      "navigationBarTitleText": "我的"
-    }
-  }, {
-    "path": "pages/mine/avatar/index",
-    "style": {
-      "navigationBarTitleText": "修改头像"
-    }
-  }, {
-    "path": "pages/mine/info/index",
-    "style": {
-      "navigationBarTitleText": "个人信息"
-    }
-  }, {
-    "path": "pages/mine/info/edit",
-    "style": {
-      "navigationBarTitleText": "编辑资料"
-    }
-  }, {
-    "path": "pages/mine/pwd/index",
-    "style": {
-      "navigationBarTitleText": "修改密码"
-    }
-  }, {
-    "path": "pages/mine/setting/index",
-    "style": {
-      "navigationBarTitleText": "应用设置"
-    }
-  }, {
-    "path": "pages/mine/help/index",
-    "style": {
-      "navigationBarTitleText": "常见问题"
-    }
-  }, {
-    "path": "pages/mine/about/index",
-    "style": {
-      "navigationBarTitleText": "关于我们"
-    }
-  }, {
-    "path": "pages/common/webview/index",
-    "style": {
-      "navigationBarTitleText": "浏览网页"
-    }
-  }, {
-    "path": "pages/common/textview/index",
-    "style": {
-      "navigationBarTitleText": "浏览文本"
-    }
-  }],
+  ],
   "tabBar": {
-    "color": "#000000",
-    "selectedColor": "#000000",
+    "color": "#666666",
+    "selectedColor": "#E53935",
     "borderStyle": "white",
     "backgroundColor": "#ffffff",
-    "list": [{
+    "list": [
+      {
         "pagePath": "pages/index",
         "iconPath": "static/images/tabbar/home.png",
         "selectedIconPath": "static/images/tabbar/home_.png",
         "text": "首页"
-      }, {
-        "pagePath": "pages/work/index",
-        "iconPath": "static/images/tabbar/work.png",
-        "selectedIconPath": "static/images/tabbar/work_.png",
-        "text": "工作台"
-      }, {
+      },
+      {
+        "pagePath": "pages/category/index",
+        "iconPath": "static/images/tabbar/category.png",
+        "selectedIconPath": "static/images/tabbar/category_.png",
+        "text": "分类"
+      },
+      {
+        "pagePath": "pages/cart/index",
+        "iconPath": "static/images/tabbar/cart.png",
+        "selectedIconPath": "static/images/tabbar/cart_.png",
+        "text": "购物车"
+      },
+      {
         "pagePath": "pages/mine/index",
         "iconPath": "static/images/tabbar/mine.png",
         "selectedIconPath": "static/images/tabbar/mine_.png",
