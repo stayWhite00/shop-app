@@ -94,6 +94,15 @@
       </radio-group>
     </view>
 
+    <!-- 优惠券 -->
+    <view class="coupon-section" v-if="!isPointsOrder && usableCoupons.length > 0">
+      <view class="section-title">优惠券</view>
+      <view class="coupon-select" @click="showCouponPopup">
+        <text class="coupon-label" :class="{ 'has-coupon': selectedCoupon }">{{ selectedCoupon ? '-¥' + selectedCoupon.discount : '有可用优惠券' }}</text>
+        <uni-icons type="right" size="16" color="#999"></uni-icons>
+      </view>
+    </view>
+
     <!-- 订单备注 -->
     <view class="remark-section">
       <text class="section-title">订单备注</text>
@@ -152,6 +161,32 @@
         <text class="cost-value">-{{ finalAmount }}</text>
       </view>
     </view>
+  <uni-popup ref="couponPopup" type="bottom" background-color="#fff">
+      <view class="coupon-popup">
+        <view class="popup-header">
+          <text class="popup-title">选择优惠券</text>
+          <uni-icons type="closeempty" size="24" @click="closeCouponPopup"></uni-icons>
+        </view>
+        <scroll-view scroll-y class="coupon-scroll">
+          <view class="coupon-item" @click="selectCoupon(null)">
+            <text class="coupon-name">不使用优惠券</text>
+            <uni-icons type="checkmarkempty" size="24" color="#E53935" v-if="!selectedCoupon"></uni-icons>
+          </view>
+          <view 
+            class="coupon-item" 
+            v-for="item in usableCoupons" 
+            :key="item.userCouponId"
+            @click="selectCoupon(item)"
+          >
+            <view class="coupon-info">
+              <text class="coupon-name">{{ item.couponName || '优惠券' }}</text>
+              <text class="coupon-desc">{{ item.type === 1 ? '满' + item.threshold + '减' + item.discount : '立减' + item.discount }}</text>
+            </view>
+            <uni-icons type="checkmarkempty" size="24" color="#E53935" v-if="selectedCoupon && selectedCoupon.userCouponId === item.userCouponId"></uni-icons>
+          </view>
+        </scroll-view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 
@@ -162,6 +197,7 @@ import { getStoreList } from "@/api/mall/store";
 import { getCartList } from "@/api/mall/cart";
 import { getProductDetail } from "@/api/mall/product";
 import { getMemberInfo } from "@/api/mall/member";
+import { getUsableCoupons } from "@/api/mall/coupon";
 
 export default {
   data() {
@@ -182,15 +218,15 @@ export default {
       discountAmount: "0.00",
       freight: 0,
       userPoints: 0,
+      usableCoupons: [],
+      selectedCoupon: null,
     };
   },
   computed: {
     finalAmount() {
-      return (
-        parseFloat(this.totalAmount) -
-        parseFloat(this.discountAmount) +
-        parseFloat(this.freight)
-      ).toFixed(2);
+      let amount = parseFloat(this.totalAmount) - parseFloat(this.discountAmount);
+      if (amount < 0) amount = 0;
+      return (amount + parseFloat(this.freight)).toFixed(2);
     },
     // 根据详设：本地用户可选快递/配送/自提，外地用户仅快递
     // 此处暂时返回全部，实际可结合 userType 做过滤
@@ -262,6 +298,7 @@ export default {
             categoryId: item.categoryId,
           }));
         this.calculateTotal();
+        this.loadUsableCoupons();
       } catch (error) {
         console.error("加载购物车商品失败:", error);
       }
@@ -284,6 +321,7 @@ export default {
           },
         ];
         this.calculateTotal();
+        this.loadUsableCoupons();
       } catch (error) {
         console.error("加载商品信息失败:", error);
       }
@@ -349,10 +387,11 @@ export default {
       if (this.isPointsOrder) {
         this.discountAmount = "0.00";
       } else {
-        this.discountAmount = (
-          productTotal *
-          (1.0 - this.discountRate)
-        ).toFixed(2);
+        let discount = productTotal * (1.0 - this.discountRate);
+        if (this.selectedCoupon) {
+          discount += parseFloat(this.selectedCoupon.discount);
+        }
+        this.discountAmount = discount.toFixed(2);
       }
 
       this.calculateFreight();
@@ -380,6 +419,28 @@ export default {
     },
 
     // 提交订单
+    async loadUsableCoupons() {
+      if (this.isPointsOrder) return;
+      try {
+        const res = await getUsableCoupons(this.totalAmount);
+        this.usableCoupons = res.data || [];
+        // 如果有优惠券且没选，默认选金额最大的一张或者不选。这里我们不默认选择，让用户自己选
+      } catch (e) {
+        console.error("获取可用优惠券失败:", e);
+      }
+    },
+    showCouponPopup() {
+      this.$refs.couponPopup.open();
+    },
+    closeCouponPopup() {
+      this.$refs.couponPopup.close();
+    },
+    selectCoupon(coupon) {
+      this.selectedCoupon = coupon;
+      this.closeCouponPopup();
+      // 重新计算总价，更新 discountAmount 或新增 couponDiscount
+      this.calculateTotal();
+    },
     async submitOrder() {
       // 非自提时必须选择收货地址
       if (this.deliveryType !== 3 && !this.selectedAddress) {
@@ -417,6 +478,7 @@ export default {
               ? this.productList[0].quantity
               : null,
           remark: this.remark,
+          userCouponId: this.selectedCoupon ? this.selectedCoupon.userCouponId : null,
         };
 
         const res = await createOrder(orderData);
@@ -743,6 +805,87 @@ export default {
       font-size: $uni-font-size-lg;
       font-weight: bold;
       color: $uni-color-primary;
+    }
+  }
+}
+.coupon-section {
+  background-color: #fff;
+  padding: 24rpx 32rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .section-title {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .coupon-select {
+    display: flex;
+    align-items: center;
+
+    .coupon-label {
+      font-size: 28rpx;
+      color: #999;
+      margin-right: 8rpx;
+
+      &.has-coupon {
+        color: #e53935;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.coupon-popup {
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 32rpx;
+
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32rpx;
+
+    .popup-title {
+      font-size: 32rpx;
+      font-weight: bold;
+      color: #333;
+    }
+  }
+
+  .coupon-scroll {
+    max-height: 60vh;
+  }
+
+  .coupon-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24rpx 0;
+    border-bottom: 1rpx solid #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .coupon-info {
+      display: flex;
+      flex-direction: column;
+
+      .coupon-name {
+        font-size: 28rpx;
+        color: #333;
+        margin-bottom: 8rpx;
+      }
+
+      .coupon-desc {
+        font-size: 24rpx;
+        color: #e53935;
+      }
     }
   }
 }
