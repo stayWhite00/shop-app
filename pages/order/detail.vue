@@ -82,11 +82,18 @@
             <text class="product-price" v-else>¥{{ item.price }}</text>
             <text class="product-quantity">x{{ item.quantity }}</text>
             <button
-              v-if="order.status === 40"
+              v-if="order.status === 40 && !isReviewed(item.productId)"
               class="btn btn-evaluate"
               @click.stop="goEvaluate(item.productId)"
             >
               评价
+            </button>
+            <button
+              v-else-if="order.status === 40"
+              class="btn btn-evaluated"
+              disabled
+            >
+              已评价
             </button>
           </view>
         </view>
@@ -202,12 +209,14 @@ import {
   payOrder as payOrderApi,
 } from "@/api/mall/order";
 import { getStoreDetail } from "@/api/mall/store";
+import { getReviewedProductIds } from "@/api/mall/review";
 import request from "@/utils/request";
 
 export default {
   data() {
     return {
       orderId: 0,
+      reviewedProductIds: [],
       order: {
         orderId: 0,
         orderNo: "",
@@ -242,6 +251,7 @@ export default {
       try {
         const res = await getOrderDetail(this.orderId);
         this.order = res.data;
+        await this.loadReviewedProducts();
         // 自提时加载门店信息
         if (this.order.deliveryType === 3 && this.order.storeId) {
           this.loadStoreInfo(this.order.storeId);
@@ -387,6 +397,25 @@ export default {
       uni.navigateTo({
         url: `/pages/afterSale/apply?orderId=${this.orderId}`,
       });
+    },
+
+    async loadReviewedProducts() {
+      if (this.order.status !== 40) {
+        this.reviewedProductIds = [];
+        return;
+      }
+      try {
+        const res = await getReviewedProductIds(this.orderId);
+        this.reviewedProductIds = res.data || [];
+      } catch (error) {
+        console.error("加载评价状态失败:", error);
+      }
+    },
+
+    isReviewed(productId) {
+      return this.reviewedProductIds.some(
+        (id) => String(id) === String(productId)
+      );
     },
 
     // 导航到评价页面
@@ -545,6 +574,18 @@ export default {
     background-color: #fff;
     color: $uni-color-primary;
     border: 1rpx solid $uni-color-primary;
+    margin-left: 20rpx;
+  }
+
+  .btn-evaluated {
+    height: 48rpx;
+    line-height: 48rpx;
+    padding: 0 24rpx;
+    border-radius: 24rpx;
+    font-size: 24rpx;
+    background-color: #f5f5f5;
+    color: #999;
+    border: 1rpx solid #ddd;
     margin-left: 20rpx;
   }
 }

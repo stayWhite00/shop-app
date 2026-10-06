@@ -90,13 +90,6 @@
             >
               申请售后
             </button>
-            <button
-              v-if="order.status === 40"
-              class="btn btn-primary"
-              @click.stop="goEvaluate(order)"
-            >
-              商品评价
-            </button>
           </view>
         </view>
       </view>
@@ -259,16 +252,6 @@ export default {
       });
     },
 
-    // 评价第一个商品
-    goEvaluate(order) {
-      if (order.items && order.items.length > 0) {
-        uni.navigateTo({
-          url: `/pages/review/submit?orderId=${order.orderId}&productId=${order.items[0].productId}`,
-        });
-      } else {
-        uni.showToast({ title: "无法获取商品信息", icon: "none" });
-      }
-    },
   },
 };
 </script>

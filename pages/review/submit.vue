@@ -4,6 +4,15 @@
       <text class="title">评价商品</text>
     </view>
 
+    <view v-if="product.productName" class="product-card flex align-center">
+      <image
+        :src="product.coverImage"
+        mode="aspectFill"
+        class="product-image"
+      />
+      <text class="product-name">{{ product.productName }}</text>
+    </view>
+
     <!-- 评分 -->
     <view class="section">
       <text class="section-label">商品评分</text>
@@ -73,6 +82,7 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from "vue";
 import { addReview } from "@/api/mall/review";
+import { getOrderDetail } from "@/api/mall/order";
 import upload from "@/utils/upload";
 import config from "@/config";
 
@@ -80,6 +90,10 @@ const baseUrl = config.baseUrl;
 const { proxy } = getCurrentInstance();
 const submitting = ref(false);
 const imageList = ref([]);
+const product = ref({
+  productName: "",
+  coverImage: "",
+});
 
 const form = ref({
   orderId: null,
@@ -90,12 +104,33 @@ const form = ref({
   images: "",
 });
 
-onMounted(() => {
+onMounted(async () => {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1];
   form.value.orderId = Number(currentPage.options?.orderId);
   form.value.productId = Number(currentPage.options?.productId);
+  await loadProduct();
 });
+
+async function loadProduct() {
+  if (!form.value.orderId || !form.value.productId) {
+    return;
+  }
+  try {
+    const res = await getOrderDetail(form.value.orderId);
+    const item = (res.data?.items || []).find(
+      (it) => String(it.productId) === String(form.value.productId)
+    );
+    if (item) {
+      product.value = {
+        productName: item.productName || "",
+        coverImage: item.coverImage || "",
+      };
+    }
+  } catch (error) {
+    console.error("加载商品信息失败:", error);
+  }
+}
 
 // 选择图片并上传
 async function chooseImage() {
@@ -175,6 +210,28 @@ async function handleSubmit() {
     font-size: 34rpx;
     font-weight: bold;
     color: #333;
+  }
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+
+  .product-image {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 12rpx;
+    margin-right: 20rpx;
+    flex-shrink: 0;
+  }
+
+  .product-name {
+    flex: 1;
+    font-size: 28rpx;
+    color: #333;
+    line-height: 1.4;
   }
 }
 

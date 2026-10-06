@@ -25,3 +25,12 @@ export function checkReviewed(orderId) {
     method: "get",
   });
 }
+
+/** 查询订单中已评价的商品 */
+export function getReviewedProductIds(orderId) {
+  return request({
+    url: `/api/review/order/${orderId}`,
+    method: "get",
+  });
+}
+
