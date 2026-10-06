@@ -143,6 +143,10 @@ export default {
     }
     this.loadOrderList();
   },
+  onShow() {
+    // 每次页面展示时刷新列表，确保售后状态变更后订单列表即时更新
+    this.loadOrderList();
+  },
   methods: {
     // 切换状态
     switchStatus(status) {
@@ -179,6 +183,7 @@ export default {
         40: "已完成",
         50: "已取消",
         60: "售后中",
+        70: "已退款",
       };
       return statusMap[status] || "未知";
     },
@@ -355,6 +360,9 @@ export default {
       }
       &.status-60 {
         color: $uni-color-warning;
+      }
+      &.status-70 {
+        color: $uni-text-color-grey;
       }
     }
   }

@@ -18,13 +18,6 @@
         <view class="iconfont icon-password icon"></view>
         <input v-model="registerForm.confirmPassword" type="password" class="input" placeholder="请输入重复密码" maxlength="20" />
       </view>
-      <view class="input-item flex align-center" style="width: 60%;margin: 0px;" v-if="captchaEnabled">
-        <view class="iconfont icon-code icon"></view>
-        <input v-model="registerForm.code" type="number" class="input" placeholder="请输入验证码" maxlength="4" />
-        <view class="login-code"> 
-          <image :src="codeUrl" @click="getCode" class="login-code-img"></image>
-        </view>
-      </view>
       <view class="action-btn">
         <button @click="handleRegister()" class="register-btn cu-btn block bg-blue lg round">注册</button>
       </view>
@@ -36,37 +29,22 @@
 </template>
 
 <script setup>
-  import { getCodeImg, register } from '@/api/login'
+  import { register } from '@/api/login'
   import { ref, getCurrentInstance } from "vue"
   import { useConfigStore } from '@/store'
 
   const { proxy } = getCurrentInstance()
   const globalConfig = useConfigStore().config
-  const codeUrl = ref("")
-  // 验证码开关
-  const captchaEnabled = ref(true)
+
   const registerForm = ref({
     username: "",
     password: "",
-    confirmPassword: "",
-    code: "",
-    uuid: ""
+    confirmPassword: ""
   })
 
   // 用户登录
   function handleUserLogin() {
     proxy.$tab.navigateTo(`/pages/login`)
-  }
-
-  // 获取图形验证码
-  function getCode() {
-    getCodeImg().then(res => {
-      captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
-        if (captchaEnabled.value) {
-          codeUrl.value = 'data:image/gif;base64,' + res.img
-          registerForm.value.uuid = res.uuid
-      }
-    })
   }
 
   // 注册方法
@@ -79,8 +57,6 @@
       proxy.$modal.msgError("请再次输入您的密码")
     } else if (registerForm.value.password !== registerForm.value.confirmPassword) {
       proxy.$modal.msgError("两次输入的密码不一致")
-    } else if (registerForm.value.code === "" && captchaEnabled.value) {
-      proxy.$modal.msgError("请输入验证码")
     } else {
       proxy.$modal.loading("注册中，请耐心等待...")
       userRegister()
@@ -100,14 +76,8 @@
           }
         }
       })
-    }).catch(() => {
-      if (captchaEnabled.value) {
-        getCode()
-      }
     })
   }
-
-  getCode()
 </script>
 
 <style lang="scss" scoped>

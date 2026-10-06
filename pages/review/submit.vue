@@ -74,7 +74,9 @@
 import { ref, onMounted, getCurrentInstance } from "vue";
 import { addReview } from "@/api/mall/review";
 import upload from "@/utils/upload";
+import config from "@/config";
 
+const baseUrl = config.baseUrl;
 const { proxy } = getCurrentInstance();
 const submitting = ref(false);
 const imageList = ref([]);
@@ -108,8 +110,16 @@ async function chooseImage() {
             url: "/common/upload",
             filePath: path,
           });
-          if (uploadRes.url) {
-            imageList.value.push(uploadRes.url);
+          let fileUrl =
+            uploadRes?.data?.url ||
+            uploadRes?.url ||
+            uploadRes?.data?.fileName ||
+            uploadRes?.fileName;
+          if (fileUrl) {
+            if (!fileUrl.startsWith("http://") && !fileUrl.startsWith("https://")) {
+              fileUrl = baseUrl + fileUrl;
+            }
+            imageList.value.push(fileUrl);
           }
         }
       } catch (e) {

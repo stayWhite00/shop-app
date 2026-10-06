@@ -69,6 +69,12 @@
             <text class="text">日志管理</text>
           </view>
         </uni-grid-item>
+        <uni-grid-item>
+          <view class="grid-item-box">
+            <uni-icons type="list" size="30"></uni-icons>
+            <text class="text">商品管理</text>
+          </view>
+        </uni-grid-item>
       </uni-grid>
     </view>
   </view>
@@ -82,6 +88,20 @@
   const swiperDotIndex = ref(0)
   const data = ref([{ image: '/static/images/banner/banner01.jpg' }, { image: '/static/images/banner/banner02.jpg' }, { image: '/static/images/banner/banner03.jpg' }])
 
+  // 宫格菜单路由配置（null 表示建设中）
+  const gridRoutes = [
+    null,                             // 用户管理
+    null,                             // 角色管理
+    null,                             // 菜单管理
+    null,                             // 部门管理
+    null,                             // 岗位管理
+    null,                             // 字典管理
+    null,                             // 参数设置
+    null,                             // 通知公告
+    null,                             // 日志管理
+    '/pages/manage/product/list',     // 商品管理
+  ]
+
   function clickBannerItem(item) {
     console.info(item)
   }
@@ -91,7 +111,12 @@
   }
 
   function changeGrid(e) {
-    proxy.$modal.showToast('模块建设中~')
+    const route = gridRoutes[e.index]
+    if (route) {
+      uni.navigateTo({ url: route })
+    } else {
+      proxy.$modal.showToast('模块建设中~')
+    }
   }
 </script>
 

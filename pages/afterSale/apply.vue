@@ -77,6 +77,9 @@
 <script>
 import { applyAfterSale } from "@/api/mall/afterSale";
 import upload from "@/utils/upload";
+import config from "@/config";
+
+const baseUrl = config.baseUrl;
 
 export default {
   data() {
@@ -129,8 +132,16 @@ export default {
                 url: "/common/upload",
                 filePath: path,
               });
-              if (uploadRes.url) {
-                this.imageList.push(uploadRes.url);
+              let fileUrl =
+                uploadRes?.data?.url ||
+                uploadRes?.url ||
+                uploadRes?.data?.fileName ||
+                uploadRes?.fileName;
+              if (fileUrl) {
+                if (!fileUrl.startsWith("http://") && !fileUrl.startsWith("https://")) {
+                  fileUrl = baseUrl + fileUrl;
+                }
+                this.imageList.push(fileUrl);
               }
             }
           } catch (e) {

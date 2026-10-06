@@ -230,6 +230,12 @@ export default {
     this.orderId = options.id;
     this.loadOrderDetail();
   },
+  onShow() {
+    // 每次页面展示时刷新订单状态，确保售后处理结果（同意/拒绝）后订单状态即时更新
+    if (this.orderId) {
+      this.loadOrderDetail();
+    }
+  },
   methods: {
     // 加载订单详情
     async loadOrderDetail() {
@@ -268,6 +274,7 @@ export default {
         40: "已完成",
         50: "已取消",
         60: "售后中",
+        70: "已退款",
       };
       return statusMap[status] || "未知";
     },
@@ -281,6 +288,7 @@ export default {
         40: "checkmarkempty",
         50: "close",
         60: "redo",
+        70: "checkmarkempty",
       };
       return iconMap[status] || "help";
     },

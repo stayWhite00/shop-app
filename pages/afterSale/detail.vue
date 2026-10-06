@@ -71,6 +71,9 @@
 
 <script>
 import { getAfterSaleDetail, submitReturnExpress } from '@/api/mall/afterSale'
+import config from '@/config'
+
+const baseUrl = config.baseUrl
 
 export default {
   data() {
@@ -96,16 +99,35 @@ export default {
     this.afterSaleId = options.id
     this.loadAfterSaleDetail()
   },
+  onShow() {
+    // 每次页面展示时刷新，确保管理员同意/拒绝后状态及时更新
+    if (this.afterSaleId) {
+      this.loadAfterSaleDetail()
+    }
+  },
   methods: {
     // 加载售后详情
     async loadAfterSaleDetail() {
       try {
         const res = await getAfterSaleDetail(this.afterSaleId)
-        this.afterSale = res.data
+        this.afterSale = res.data || {}
         // 处理图片数组
         if (typeof this.afterSale.images === 'string') {
-          this.afterSale.images = JSON.parse(this.afterSale.images)
+          try {
+            this.afterSale.images = JSON.parse(this.afterSale.images || '[]')
+          } catch (e) {
+            this.afterSale.images = this.afterSale.images ? this.afterSale.images.split(',') : []
+          }
         }
+        if (!Array.isArray(this.afterSale.images)) {
+          this.afterSale.images = []
+        }
+        this.afterSale.images = this.afterSale.images.map(img => {
+          if (img && !img.startsWith('http://') && !img.startsWith('https://')) {
+            return baseUrl + img
+          }
+          return img
+        })
       } catch (error) {
         console.error('加载售后详情失败:', error)
         uni.showToast({
@@ -118,12 +140,13 @@ export default {
     // 获取状态文本
     getStatusText(status) {
       const statusMap = {
-        1: '待审核',
-        2: '待退货',
-        3: '待验收',
-        4: '退款中',
-        5: '已完成',
-        6: '已拒绝'
+        10: '待审核',
+        20: '待退货',
+        30: '待验收',
+        40: '退款中',
+        50: '退款已完成',
+        60: '已拒绝',
+        70: '已取消'
       }
       return statusMap[status] || '未知'
     },
@@ -131,12 +154,13 @@ export default {
     // 获取状态图标
     getStatusIcon(status) {
       const iconMap = {
-        1: 'clock',
-        2: 'box',
-        3: 'eye',
-        4: 'wallet',
-        5: 'checkmarkempty',
-        6: 'close'
+        10: 'clock',
+        20: 'box',
+        30: 'eye',
+        40: 'wallet',
+        50: 'checkmarkempty',
+        60: 'close',
+        70: 'close'
       }
       return iconMap[status] || 'help'
     },

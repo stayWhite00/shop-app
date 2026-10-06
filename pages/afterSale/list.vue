@@ -58,6 +58,10 @@ export default {
   onLoad() {
     this.loadAfterSaleList()
   },
+  onShow() {
+    // 每次页面展示时刷新列表，确保售后状态变更后能即时反映
+    this.loadAfterSaleList()
+  },
   methods: {
     // 加载售后列表
     async loadAfterSaleList() {
@@ -75,12 +79,13 @@ export default {
     // 获取状态文本
     getStatusText(status) {
       const statusMap = {
-        1: '待审核',
-        2: '待退货',
-        3: '待验收',
-        4: '退款中',
-        5: '已完成',
-        6: '已拒绝'
+        10: '待审核',
+        20: '待退货',
+        30: '待验收',
+        40: '退款中',
+        50: '退款已完成',
+        60: '已拒绝',
+        70: '已取消'
       }
       return statusMap[status] || '未知'
     },
