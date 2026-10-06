@@ -16,7 +16,8 @@
     {
       "path": "pages/cart/index",
       "style": {
-        "navigationBarTitleText": "购物车"
+        "navigationBarTitleText": "购物车",
+        "disableScroll": true
       }
     },
     {

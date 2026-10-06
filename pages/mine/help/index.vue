@@ -22,18 +22,18 @@
 
   const list = ref([{
     icon: 'iconfont icon-github',
-    title: '若依问题',
+    title: '私域商城问题',
     childList: [{
-      title: '若依开源吗？',
+      title: '私域商城开源吗？',
       content: '开源'
     }, {
-      title: '若依可以商用吗？',
+      title: '私域商城可以商用吗？',
       content: '可以'
     }, {
-      title: '若依官网地址多少？',
+      title: '私域商城官网地址多少？',
       content: 'http://ruoyi.vip'
     }, {
-      title: '若依文档地址多少？',
+      title: '私域商城文档地址多少？',
       content: 'http://doc.ruoyi.vip'
     }]
   },

@@ -1,7 +1,13 @@
 <template>
-  <view class="cart-page">
+  <view class="cart-page" :style="{ height: pageHeight + 'px' }">
     <!-- 购物车列表 -->
-    <scroll-view v-if="cartList.length > 0" scroll-y class="cart-list">
+    <scroll-view
+      v-if="cartList.length > 0"
+      scroll-y
+      class="cart-list"
+      :style="{ height: listHeight + 'px' }"
+    >
+      <view class="cart-list-inner">
       <view v-for="item in cartList" :key="item.cartId" class="cart-item">
         <!-- 选择框 -->
         <view class="item-check" @click="toggleCheck(item)">
@@ -51,6 +57,7 @@
           <uni-icons type="trash" size="20" color="#999"></uni-icons>
         </view>
       </view>
+      </view>
     </scroll-view>
 
     <!-- 空购物车 -->
@@ -66,22 +73,20 @@
 
     <!-- 底部结算栏 -->
     <view v-if="cartList.length > 0" class="cart-footer">
-      <view class="footer-left">
-        <view class="all-check" @click="toggleAllCheck">
-          <uni-icons
-            :type="isAllChecked ? 'checkbox-filled' : 'circle'"
-            :size="24"
-            :color="isAllChecked ? '#E53935' : '#CCCCCC'"
-          ></uni-icons>
-          <text class="all-check-text">全选</text>
-        </view>
-        <view class="total-info">
-          <text class="total-label">合计:</text>
-          <text class="total-price" v-if="isPointsSelectedOnly"
-            >{{ totalPrice }} 积分</text
-          >
-          <text class="total-price" v-else>¥{{ totalPrice }}</text>
-        </view>
+      <view class="all-check" @click="toggleAllCheck">
+        <uni-icons
+          :type="isAllChecked ? 'checkbox-filled' : 'circle'"
+          :size="22"
+          :color="isAllChecked ? '#E53935' : '#CCCCCC'"
+        ></uni-icons>
+        <text class="all-check-text">全选</text>
+      </view>
+      <view class="total-info">
+        <text class="total-label">合计</text>
+        <text class="total-price" v-if="isPointsSelectedOnly"
+          >{{ totalPrice }} 积分</text
+        >
+        <text class="total-price" v-else>¥{{ totalPrice }}</text>
       </view>
       <button
         class="settle-btn"
@@ -105,8 +110,12 @@ import {
 
 export default {
   data() {
+    const info = uni.getSystemInfoSync();
+    const footerHeight = uni.upx2px(112);
     return {
       cartList: [],
+      pageHeight: info.windowHeight,
+      listHeight: Math.max(info.windowHeight - footerHeight, 0),
     };
   },
   computed: {
@@ -140,10 +149,21 @@ export default {
       );
     },
   },
+  onLoad() {
+    this.updateLayout();
+  },
   onShow() {
+    this.updateLayout();
     this.loadCartList();
   },
   methods: {
+    updateLayout() {
+      const info = uni.getSystemInfoSync();
+      const footerHeight = uni.upx2px(112);
+      this.pageHeight = info.windowHeight;
+      this.listHeight = Math.max(info.windowHeight - footerHeight, 0);
+    },
+
     // 加载购物车列表
     async loadCartList() {
       try {
@@ -296,14 +316,20 @@ export default {
 
 <style lang="scss" scoped>
 .cart-page {
-  height: 100vh;
+  height: 100%;
   background-color: $uni-bg-color-grey;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .cart-list {
   flex: 1;
+  height: 0;
+  min-height: 0;
+}
+
+.cart-list-inner {
   padding: 16rpx;
 }
 
@@ -417,51 +443,70 @@ export default {
 }
 
 .cart-footer {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: 112rpx;
   background-color: #fff;
-  padding: 16rpx 24rpx;
+  padding: 0 24rpx;
   border-top: 1rpx solid $uni-border-color;
   display: flex;
-  justify-content: space-between;
   align-items: center;
 
-  .footer-left {
-    display: flex;
-    align-items: center;
-  }
-
   .all-check {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    margin-right: 32rpx;
 
     .all-check-text {
       margin-left: 8rpx;
       font-size: $uni-font-size-base;
       color: $uni-text-color;
+      white-space: nowrap;
     }
   }
 
   .total-info {
+    flex: 1;
+    min-width: 0;
+    margin-left: 20rpx;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+
     .total-label {
-      font-size: $uni-font-size-base;
-      color: $uni-text-color;
+      flex-shrink: 0;
+      margin-right: 8rpx;
+      font-size: $uni-font-size-sm;
+      color: $uni-text-color-grey;
     }
 
     .total-price {
+      min-width: 0;
       font-size: 36rpx;
       font-weight: bold;
+      line-height: 1.2;
       color: $uni-color-primary;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
   .settle-btn {
+    flex-shrink: 0;
     width: 200rpx;
-    height: 72rpx;
-    line-height: 72rpx;
+    height: 76rpx;
+    margin: 0 0 0 20rpx;
+    padding: 0;
+    line-height: 76rpx;
     background-color: $uni-color-primary;
     color: #fff;
-    border-radius: 36rpx;
+    border-radius: 38rpx;
     font-size: $uni-font-size-base;
+
+    &::after {
+      border: none;
+    }
 
     &[disabled] {
       background-color: $uni-bg-color-grey;

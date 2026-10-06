@@ -118,15 +118,15 @@
       </view>
       <view v-if="order.payTime" class="info-item">
         <text class="info-label">支付时间</text>
-        <text class="info-value">{{ order.payTime }}</text>
+        <text class="info-value">{{ formatDateTime(order.payTime) }}</text>
       </view>
       <view v-if="order.shipTime" class="info-item">
         <text class="info-label">发货时间</text>
-        <text class="info-value">{{ order.shipTime }}</text>
+        <text class="info-value">{{ formatDateTime(order.shipTime) }}</text>
       </view>
       <view v-if="order.finishTime" class="info-item">
         <text class="info-label">完成时间</text>
-        <text class="info-value">{{ order.finishTime }}</text>
+        <text class="info-value">{{ formatDateTime(order.finishTime) }}</text>
       </view>
       <view v-if="order.payType" class="info-item">
         <text class="info-label">支付方式</text>
@@ -273,6 +273,24 @@ export default {
       } catch (error) {
         console.error("加载门店信息失败:", error);
       }
+    },
+
+    formatDateTime(value) {
+      if (!value) return "";
+      const text = String(value).trim();
+      const matched = text.match(
+        /^(\d{4}-\d{2}-\d{2})[T\s](\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/
+      );
+      if (!matched) return text;
+      if (!matched[3]) return `${matched[1]} ${matched[2]}`;
+      const date = new Date(text);
+      if (Number.isNaN(date.getTime())) return `${matched[1]} ${matched[2]}`;
+      const pad = (num) => String(num).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+      )} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+        date.getSeconds()
+      )}`;
     },
 
     // 获取状态文本
